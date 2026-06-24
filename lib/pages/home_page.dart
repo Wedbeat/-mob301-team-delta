@@ -39,7 +39,7 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          'ShopApp',
+          'Ti Mache Lakay',
           style: TextStyle(
             color: Color(0xFF1A1A2E),
             fontWeight: FontWeight.bold,
