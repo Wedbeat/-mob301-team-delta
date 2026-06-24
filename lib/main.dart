@@ -1,15 +1,6 @@
 import 'package:flutter/material.dart';
 
-// ─────────────────────────────────────────────
-//  Importe tes screens ici (ajuste les chemins
-//  selon ta structure de dossiers)
-// ─────────────────────────────────────────────
-import 'pages/home_page.dart';
-import 'pages/profile_page.dart';
-
-// ── Les 2 autres screens (tes coéquipiers) ──
-// import 'screens/catalog/catalog_screen.dart';
-// import 'screens/cart/cart_screen.dart';
+import 'pages/login_page.dart';
 
 void main() {
   runApp(const ShopApp());
@@ -24,7 +15,7 @@ class ShopApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ShopApp',
+      title: 'Ti Mache Lakay',
       debugShowCheckedModeBanner: false,
 
       // ── Thème Global ──
@@ -36,11 +27,10 @@ class ShopApp extends StatelessWidget {
           primary: const Color(0xFF1A1A2E),
           secondary: const Color(0xFFE94560),
           surface: Colors.white,
-        //  background: const Color(0xFFF5F5F5),
         ),
         scaffoldBackgroundColor: const Color(0xFFF5F5F5),
 
-        // ── Typographie ──
+        // ── Typografi ──
         fontFamily: 'Poppins',
         textTheme: const TextTheme(
           headlineLarge: TextStyle(
@@ -158,95 +148,8 @@ class ShopApp extends StatelessWidget {
         ),
       ),
 
-      // ── Écran de démarrage ──
-      home: const MainNavigationWrapper(),
+      // ── Demare sou LoginScreen ──
+      home: const LoginScreen(),
     );
   }
-}
-
-// ─────────────────────────────────────────────
-//  Navigation principale (BottomNavigationBar)
-//  Connecte les 4 screens de l'équipe
-// ─────────────────────────────────────────────
-class MainNavigationWrapper extends StatefulWidget {
-  const MainNavigationWrapper({super.key});
-
-  @override
-  State<MainNavigationWrapper> createState() => _MainNavigationWrapperState();
-}
-
-class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
-  int _currentIndex = 0;
-
-  // ── Liste des screens (1 par coéquipier) ──
-  final List<Widget> _screens = const [
-    HomeScreen(),       // Toi — Accueil
-    // CatalogScreen(), // Coéquipier 2 — Décommente quand prêt
-    Placeholder(color: Color(0xFFF5F5F5)),  // placeholder Catalogue
-    // CartScreen(),    // Coéquipier 3 — Décommente quand prêt
-    Placeholder(color: Color(0xFFF5F5F5)),  // placeholder Panier
-    ProfileScreen(),    // Toi — Profile
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Accueil',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view_outlined),
-            activeIcon: Icon(Icons.grid_view),
-            label: 'Catalogue',
-          ),
-          // Badge panier
-          BottomNavigationBarItem(
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Icon(Icons.shopping_cart_outlined),
-                Positioned(
-                  right: -6,
-                  top: -6,
-                  child: Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE94560),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Text(
-                      '3',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            activeIcon: const Icon(Icons.shopping_cart),
-            label: 'Panier',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-        ],
-      ),
-    );
-  }
-  
 }

@@ -1,52 +1,50 @@
 import 'package:flutter/material.dart';
 
-// ══════════════════════════════════════════════════════════
-//  IMPORTE SCREENS YO — chak koleg mete pa yo lè yo fin fet
-// ══════════════════════════════════════════════════════════
-import 'pages/home_page.dart';           // Ou  — Accueil
-import 'pages/profile_page.dart';     // Ou  — Profile
-// import 'screens/catalog/catalog_screen.dart';  // Koleg 2 — Catalogue
-// import 'screens/cart/cart_screen.dart';        // Koleg 3 — Panier
+import 'pages/home_page.dart';
+import 'pages/profile_page.dart';
+import 'model/user_model.dart';
 
-
-// ══════════════════════════════════════════════════════════
-//  KONSTANT: Enndèks chak onglet (evite magic numbers)
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  KONSTANT: Endèks chak onglet (evite magic numbers)
+// ══════════════════════════════════════════════════════════════
 class NavIndex {
-  static const int home    = 0;
+  static const int home = 0;
   static const int catalog = 1;
-  static const int cart    = 2;
+  static const int cart = 2;
   static const int profile = 3;
 }
 
-
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 //  MAIN NAVIGATION WRAPPER
+//  • Resevwa UserModel apre login
 //  • IndexedStack → chak screen rete nan memwa (pa rechaje)
 //  • cartCount    → badge dinamik sou ikòn panier
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 class MainNavigationWrapper extends StatefulWidget {
-  const MainNavigationWrapper({super.key});
+  final UserModel user;
+
+  const MainNavigationWrapper({super.key, required this.user});
 
   @override
   State<MainNavigationWrapper> createState() => _MainNavigationWrapperState();
 }
 
 class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
-
-  // ── Index kouran ──
   int _currentIndex = NavIndex.home;
-
-  // ── Kantite atik nan panier (chanje sa ak state management ou) ──
   int _cartCount = 3;
 
-  // ── Liste screens — chak koleg ajoute pa yo ──
-  late final List<Widget> _screens = [
-    const HomeScreen(),      // NavIndex.home    = 0
-    _buildComingSoon('Catalogue', Icons.grid_view), // NavIndex.catalog = 1
-    _buildComingSoon('Panier', Icons.shopping_cart), // NavIndex.cart    = 2
-    const ProfileScreen(),   // NavIndex.profile = 3
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const HomeScreen(), // NavIndex.home    = 0
+      _buildComingSoon('Catalogue', Icons.grid_view), // NavIndex.catalog = 1
+      _buildComingSoon('Panier', Icons.shopping_cart), // NavIndex.cart    = 2
+      ProfileScreen(user: widget.user), // NavIndex.profile = 3
+    ];
+  }
 
   // ── Placeholder pou screens ki poko fet ──
   Widget _buildComingSoon(String label, IconData icon) {
@@ -77,12 +75,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     );
   }
 
-  // ── Chanje onglet ──
   void _onTabTapped(int index) {
     setState(() => _currentIndex = index);
   }
 
-  // ── Mete jou badge panier (rele sa depi nenpot screen) ──
   void updateCartCount(int count) {
     setState(() => _cartCount = count);
   }
@@ -90,17 +86,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ── Corps: chak screen rete vivan, pa rechaje ──
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-
-      // ── Baz navigasyon ──
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: _buildBottomNavBar(),
     );
   }
-
 
   // ════════════════════════════════════════════
   //  BOTTOM NAVIGATION BAR
@@ -140,7 +129,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 icon: Icons.shopping_cart_outlined,
                 activeIcon: Icons.shopping_cart,
                 label: 'Panier',
-                badgeCount: _cartCount,  // ← badge dinamik
+                badgeCount: _cartCount,
               ),
               _buildNavItem(
                 index: NavIndex.profile,
@@ -155,7 +144,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     );
   }
 
-
   // ════════════════════════════════════════════
   //  CHAK ITEM NAVIGATION (avèk animasyon)
   // ════════════════════════════════════════════
@@ -167,8 +155,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     int badgeCount = 0,
   }) {
     final bool isActive = _currentIndex == index;
-    const Color activeColor   = Color(0xFFE94560);
-    const Color inactiveColor = Colors.grey;
+    const Color activeColor = Color(0xFFE94560);
+    const Color inactiveColor = Color.fromARGB(255, 194, 184, 184);
 
     return GestureDetector(
       onTap: () => _onTabTapped(index),
@@ -177,15 +165,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive
-              ? activeColor
-              : Colors.transparent,
+          color: isActive ? activeColor : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ── Icône + badge ──
             Stack(
               clipBehavior: Clip.none,
               children: [
@@ -198,8 +183,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     size: 24,
                   ),
                 ),
-
-                // Badge (afiche sèlman si > 0)
                 if (badgeCount > 0)
                   Positioned(
                     right: -8,
@@ -228,16 +211,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   ),
               ],
             ),
-
             const SizedBox(height: 4),
-
-            // ── Label ──
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
                 fontSize: 11,
-                fontWeight:
-                    isActive ? FontWeight.w600 : FontWeight.normal,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 color: isActive ? activeColor : inactiveColor,
                 fontFamily: 'Poppins',
               ),
@@ -250,21 +229,22 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   }
 }
 
-
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 //  HELPER: Navige vè yon onglet depi nenpot lòt screen
 //
 //  ITILIZASYON:
 //    NavigationHelper.goTo(context, NavIndex.cart);
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 class NavigationHelper {
   static void goTo(BuildContext context, int index) {
-    final state = context.findAncestorStateOfType<_MainNavigationWrapperState>();
+    final state = context
+        .findAncestorStateOfType<_MainNavigationWrapperState>();
     state?._onTabTapped(index);
   }
 
   static void updateCart(BuildContext context, int count) {
-    final state = context.findAncestorStateOfType<_MainNavigationWrapperState>();
+    final state = context
+        .findAncestorStateOfType<_MainNavigationWrapperState>();
     state?.updateCartCount(count);
   }
 }

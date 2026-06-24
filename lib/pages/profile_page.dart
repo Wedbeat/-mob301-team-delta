@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../model/user_model.dart';
+import 'login_page.dart';
+
+// ══════════════════════════════════════════════════════════════
+//  PAGE PROFIL
+// ══════════════════════════════════════════════════════════════
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final UserModel user;
+
+  const ProfileScreen({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -10,9 +18,13 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Mon Profil',
-            style: TextStyle(
-                color: Color(0xFF1A1A2E), fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Mon Profil',
+          style: TextStyle(
+            color: Color(0xFF1A1A2E),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: Color(0xFF1A1A2E)),
@@ -23,24 +35,13 @@ class ProfileScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // ── Header Profil ──
             _buildProfileHeader(),
-
             const SizedBox(height: 16),
-
-            // ── Stats ──
             _buildStatsRow(),
-
             const SizedBox(height: 16),
-
-            // ── Menu Options ──
             _buildMenuSection(context),
-
             const SizedBox(height: 24),
-
-            // ── Bouton Déconnexion ──
-            _buildLogoutButton(),
-
+            _buildLogoutButton(context),
             const SizedBox(height: 30),
           ],
         ),
@@ -48,6 +49,9 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // ════════════════════════════════════════════
+  //  ANTÈT PROFIL
+  // ════════════════════════════════════════════
   Widget _buildProfileHeader() {
     return Container(
       color: Colors.white,
@@ -56,10 +60,17 @@ class ProfileScreen extends StatelessWidget {
         children: [
           Stack(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 45,
-                backgroundColor: Color(0xFF1A1A2E),
-                child: Icon(Icons.person, size: 50, color: Colors.white),
+                backgroundColor: const Color(0xFF1A1A2E),
+                child: Text(
+                  user.avatarInitials,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
               Positioned(
                 bottom: 0,
@@ -77,41 +88,78 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 20),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Jean Dupont',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A2E))),
-              SizedBox(height: 4),
-              Text('jean.dupont@email.com',
-                  style: TextStyle(color: Colors.grey, fontSize: 13)),
-              SizedBox(height: 6),
-              Row(
-                children: [
-                  Icon(Icons.verified, color: Color(0xFFE94560), size: 16),
-                  SizedBox(width: 4),
-                  Text('Compte Vérifié',
-                      style: TextStyle(
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.fullName,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A1A2E),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  user.email,
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  user.phone,
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                ),
+                const SizedBox(height: 6),
+                if (user.isVerified)
+                  const Row(
+                    children: [
+                      Icon(Icons.verified,
+                          color: Color(0xFFE94560), size: 16),
+                      SizedBox(width: 4),
+                      Text(
+                        'Kont Verifye',
+                        style: TextStyle(
                           color: Color(0xFFE94560),
                           fontSize: 12,
-                          fontWeight: FontWeight.w500)),
-                ],
-              ),
-            ],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  const Row(
+                    children: [
+                      Icon(Icons.warning_amber_rounded,
+                          color: Colors.orange, size: 16),
+                      SizedBox(width: 4),
+                      Text(
+                        'Pa verifye',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
+  // ════════════════════════════════════════════
+  //  ESTATISTIK
+  // ════════════════════════════════════════════
   Widget _buildStatsRow() {
     final stats = [
-      {'value': '12', 'label': 'Commandes'},
-      {'value': '3', 'label': 'En cours'},
-      {'value': '8', 'label': 'Avis'},
+      {'value': '${user.orders}',  'label': 'Commandes'},
+      {'value': '${user.pending}', 'label': 'En cours'},
+      {'value': '${user.reviews}', 'label': 'Avis'},
     ];
 
     return Container(
@@ -122,13 +170,18 @@ class ProfileScreen extends StatelessWidget {
         children: stats.map((stat) {
           return Column(
             children: [
-              Text(stat['value']!,
-                  style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A2E))),
-              Text(stat['label']!,
-                  style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              Text(
+                stat['value']!,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A2E),
+                ),
+              ),
+              Text(
+                stat['label']!,
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ),
             ],
           );
         }).toList(),
@@ -136,37 +189,41 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // ════════════════════════════════════════════
+  //  MENU
+  //  FIX: background ikòn = koulè klè, ikòn = koulè fonse
+  // ════════════════════════════════════════════
   Widget _buildMenuSection(BuildContext context) {
     final menuItems = [
       {
         'icon': Icons.shopping_bag_outlined,
         'label': 'Mes Commandes',
-        'subtitle': 'Voir l\'historique'
+        'subtitle': "Voir l'historique",
       },
       {
         'icon': Icons.favorite_outline,
         'label': 'Favoris',
-        'subtitle': '5 articles sauvegardés'
+        'subtitle': '5 articles sauvegardés',
       },
       {
         'icon': Icons.location_on_outlined,
         'label': 'Adresses',
-        'subtitle': 'Gérer mes adresses'
+        'subtitle': 'Gérer mes adresses',
       },
       {
         'icon': Icons.payment_outlined,
         'label': 'Paiement',
-        'subtitle': 'Cartes et méthodes'
+        'subtitle': 'Cartes et méthodes',
       },
       {
         'icon': Icons.notifications_outlined,
         'label': 'Notifications',
-        'subtitle': 'Gérer les alertes'
+        'subtitle': 'Gérer les alertes',
       },
       {
         'icon': Icons.help_outline,
         'label': 'Aide & Support',
-        'subtitle': 'FAQ et contact'
+        'subtitle': 'FAQ et contact',
       },
     ];
 
@@ -181,19 +238,28 @@ class ProfileScreen extends StatelessWidget {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE94560),
+                    // FIX: background klè pou ikòn pa invisible
+                    color: const Color(0xFFFFECEF),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(item['icon'] as IconData,
-                      color: const Color(0xFFE94560), size: 22),
+                  child: Icon(
+                    item['icon'] as IconData,
+                    // FIX: ikòn koulè rose fonse, vizib sou background klè
+                    color: const Color(0xFFE94560),
+                    size: 22,
+                  ),
                 ),
-                title: Text(item['label'] as String,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF1A1A2E))),
-                subtitle: Text(item['subtitle'] as String,
-                    style:
-                        const TextStyle(color: Colors.grey, fontSize: 12)),
+                title: Text(
+                  item['label'] as String,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF1A1A2E),
+                  ),
+                ),
+                subtitle: Text(
+                  item['subtitle'] as String,
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
                 trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                 onTap: () {},
               ),
@@ -206,19 +272,29 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton() {
+  // ════════════════════════════════════════════
+  //  BOUTON DEKONEKSYON
+  // ════════════════════════════════════════════
+  Widget _buildLogoutButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: OutlinedButton.icon(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
+        },
         icon: const Icon(Icons.logout, color: Color(0xFFE94560)),
-        label: const Text('Déconnexion',
-            style: TextStyle(color: Color(0xFFE94560))),
+        label: const Text(
+          'Dekonekte',
+          style: TextStyle(color: Color(0xFFE94560)),
+        ),
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 50),
           side: const BorderSide(color: Color(0xFFE94560)),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
