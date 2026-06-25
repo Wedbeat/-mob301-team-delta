@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'cart_page.dart';
+import 'cart_manager.dart';
+import '../main_navigation_wrapper.dart';
 
-
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  // ── Done imaj lokal yo ak non fichye reyèl yo ──
-  static const List<Map<String, String>> _products = [
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  static const Color primaryColor = Color(0xFF1A1A2E);
+  static const Color accentColor = Color(0xFFE94560);
+  static const Color bgColor = Color(0xFFF5F5F5);
+
+  final List<Map<String, String>> _products = const [
     {
       'name': 'iPhone 15 Pro',
       'price': '\$999',
@@ -32,52 +42,98 @@ class HomeScreen extends StatelessWidget {
     },
   ];
 
+  Future<void> _openCart() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const CartPage(),
+      ),
+    );
+
+    setState(() {});
+  }
+
+  void _addToCart(Map<String, String> product) {
+    final price = double.tryParse(
+          product['price']!.replaceAll('\$', '').trim(),
+        ) ??
+        0;
+
+    CartManager.addItem(
+      
+      name: product['name']!,
+      image: product['image']!,
+      price: price,
+    );
+NavigationHelper.refreshCart(context);
+    setState(() {});
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${product['name']} ajouté au panier'),
+        backgroundColor: accentColor,
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           'Ti Mache Lakay',
           style: TextStyle(
-            color: Color(0xFF1A1A2E),
+            color: primaryColor,
             fontWeight: FontWeight.bold,
             fontSize: 22,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Color(0xFF1A1A2E)),
+            icon: const Icon(Icons.search, color: primaryColor),
             onPressed: () {},
           ),
           Stack(
+            clipBehavior: Clip.none,
             children: [
               IconButton(
                 icon: const Icon(
                   Icons.shopping_cart_outlined,
-                  color: Color(0xFF1A1A2E),
+                  color: primaryColor,
                 ),
-                onPressed: () {},
+                onPressed: _openCart,
               ),
-              Positioned(
-                right: 6,
-                top: 6,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFE94560),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Text(
-                    '3',
-                    style: TextStyle(color: Colors.white, fontSize: 10),
+              if (CartManager.count > 0)
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    constraints: const BoxConstraints(
+                      minWidth: 18,
+                      minHeight: 18,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: accentColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      CartManager.count > 99 ? '99+' : '${CartManager.count}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
@@ -96,9 +152,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ════════════════════════════════════════════
-  //  BANNER
-  // ════════════════════════════════════════════
   Widget _buildBanner() {
     return Container(
       margin: const EdgeInsets.all(16),
@@ -106,7 +159,7 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: const LinearGradient(
-          colors: [Color(0xFF1A1A2E), Color(0xFFE94560)],
+          colors: [primaryColor, accentColor],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -134,9 +187,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ════════════════════════════════════════════
-  //  TITRE SEKSYON
-  // ════════════════════════════════════════════
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -148,14 +198,14 @@ class HomeScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A2E),
+              color: primaryColor,
             ),
           ),
           TextButton(
             onPressed: () {},
             child: const Text(
               'Voir tout',
-              style: TextStyle(color: Color(0xFFE94560)),
+              style: TextStyle(color: accentColor),
             ),
           ),
         ],
@@ -163,9 +213,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ════════════════════════════════════════════
-  //  KATEGORIS
-  // ════════════════════════════════════════════
   Widget _buildCategories() {
     final categories = [
       {'icon': Icons.phone_android, 'label': 'Téléphones'},
@@ -183,7 +230,7 @@ class HomeScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 6),
-            width: 70,
+            width: 74,
             child: Column(
               children: [
                 Container(
@@ -201,7 +248,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: Icon(
                     categories[index]['icon'] as IconData,
-                    color: const Color(0xFFE94560),
+                    color: accentColor,
                     size: 24,
                   ),
                 ),
@@ -219,9 +266,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ════════════════════════════════════════════
-  //  GRIY PWODUI
-  // ════════════════════════════════════════════
   Widget _buildProductGrid() {
     return GridView.builder(
       shrinkWrap: true,
@@ -231,16 +275,13 @@ class HomeScreen extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.75,
+        childAspectRatio: 0.68,
       ),
       itemCount: _products.length,
       itemBuilder: (context, index) => _buildProductCard(index),
     );
   }
 
-  // ════════════════════════════════════════════
-  //  KAT PWODUI avèk imaj lokal
-  // ════════════════════════════════════════════
   Widget _buildProductCard(int index) {
     final product = _products[index];
 
@@ -249,17 +290,16 @@ class HomeScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
+        BoxShadow(
+  color: Colors.black.withValues(alpha: 0.08),
+  blurRadius: 8,
+  offset: const Offset(0, 2),
+),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Imaj pwodui ──
           Expanded(
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(
@@ -269,7 +309,6 @@ class HomeScreen extends StatelessWidget {
                 product['image']!,
                 fit: BoxFit.cover,
                 width: double.infinity,
-                // Si imaj pa jwenn, afiche ikòn pito
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: const Color(0xFFF0F0F0),
@@ -285,8 +324,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // ── Info pwodui ──
           Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
@@ -308,7 +345,7 @@ class HomeScreen extends StatelessWidget {
                     Text(
                       product['price']!,
                       style: const TextStyle(
-                        color: Color(0xFFE94560),
+                        color: accentColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -323,6 +360,29 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ],
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  height: 34,
+                  child: ElevatedButton(
+                    onPressed: () => _addToCart(product),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: accentColor,
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Ajouter',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

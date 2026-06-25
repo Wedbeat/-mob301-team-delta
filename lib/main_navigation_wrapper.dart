@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'pages/home_page.dart';
 import 'pages/profile_page.dart';
+import 'pages/cart_page.dart';
+import 'pages/cart_manager.dart';
 import 'model/user_model.dart';
 
-// ══════════════════════════════════════════════════════════════
-//  KONSTANT: Endèks chak onglet (evite magic numbers)
-// ══════════════════════════════════════════════════════════════
 class NavIndex {
   static const int home = 0;
   static const int catalog = 1;
@@ -14,12 +13,6 @@ class NavIndex {
   static const int profile = 3;
 }
 
-// ══════════════════════════════════════════════════════════════
-//  MAIN NAVIGATION WRAPPER
-//  • Resevwa UserModel apre login
-//  • IndexedStack → chak screen rete nan memwa (pa rechaje)
-//  • cartCount    → badge dinamik sou ikòn panier
-// ══════════════════════════════════════════════════════════════
 class MainNavigationWrapper extends StatefulWidget {
   final UserModel user;
 
@@ -31,22 +24,21 @@ class MainNavigationWrapper extends StatefulWidget {
 
 class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   int _currentIndex = NavIndex.home;
-  int _cartCount = 3;
 
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
+
     _screens = [
-      const HomeScreen(), // NavIndex.home    = 0
-      _buildComingSoon('Catalogue', Icons.grid_view), // NavIndex.catalog = 1
-      _buildComingSoon('Panier', Icons.shopping_cart), // NavIndex.cart    = 2
-      ProfileScreen(user: widget.user), // NavIndex.profile = 3
+      const HomeScreen(),
+      _buildComingSoon('Catalogue', Icons.grid_view),
+      const CartPage(),
+      ProfileScreen(user: widget.user),
     ];
   }
 
-  // ── Placeholder pou screens ki poko fet ──
   Widget _buildComingSoon(String label, IconData icon) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -76,24 +68,26 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   }
 
   void _onTabTapped(int index) {
-    setState(() => _currentIndex = index);
+    setState(() {
+      _currentIndex = index;
+    });
   }
 
-  void updateCartCount(int count) {
-    setState(() => _cartCount = count);
+  void refreshCart() {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
-  // ════════════════════════════════════════════
-  //  BOTTOM NAVIGATION BAR
-  // ════════════════════════════════════════════
   Widget _buildBottomNavBar() {
     return Container(
       decoration: BoxDecoration(
@@ -129,7 +123,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 icon: Icons.shopping_cart_outlined,
                 activeIcon: Icons.shopping_cart,
                 label: 'Panier',
-                badgeCount: _cartCount,
+                badgeCount: CartManager.count,
               ),
               _buildNavItem(
                 index: NavIndex.profile,
@@ -144,9 +138,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     );
   }
 
-  // ════════════════════════════════════════════
-  //  CHAK ITEM NAVIGATION (avèk animasyon)
-  // ════════════════════════════════════════════
   Widget _buildNavItem({
     required int index,
     required IconData icon,
@@ -178,7 +169,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
                     isActive ? activeIcon : icon,
-                    key: ValueKey(isActive),
+                    key: ValueKey('$index-$isActive'),
                     color: isActive ? activeColor : inactiveColor,
                     size: 24,
                   ),
@@ -187,8 +178,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   Positioned(
                     right: -8,
                     top: -6,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
+                    child: Container(
                       padding: const EdgeInsets.all(3),
                       decoration: const BoxDecoration(
                         color: activeColor,
@@ -212,15 +202,14 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               ],
             ),
             const SizedBox(height: 4),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
+            Text(
+              label,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 color: isActive ? activeColor : inactiveColor,
                 fontFamily: 'Poppins',
               ),
-              child: Text(label),
             ),
           ],
         ),
@@ -229,22 +218,14 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   }
 }
 
-// ══════════════════════════════════════════════════════════════
-//  HELPER: Navige vè yon onglet depi nenpot lòt screen
-//
-//  ITILIZASYON:
-//    NavigationHelper.goTo(context, NavIndex.cart);
-// ══════════════════════════════════════════════════════════════
 class NavigationHelper {
   static void goTo(BuildContext context, int index) {
-    final state = context
-        .findAncestorStateOfType<_MainNavigationWrapperState>();
+    final state = context.findAncestorStateOfType<_MainNavigationWrapperState>();
     state?._onTabTapped(index);
   }
 
-  static void updateCart(BuildContext context, int count) {
-    final state = context
-        .findAncestorStateOfType<_MainNavigationWrapperState>();
-    state?.updateCartCount(count);
+  static void refreshCart(BuildContext context) {
+    final state = context.findAncestorStateOfType<_MainNavigationWrapperState>();
+    state?.refreshCart();
   }
 }
