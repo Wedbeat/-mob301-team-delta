@@ -1,8 +1,3 @@
-// ══════════════════════════════════════════════════════════════
-//  MODÈL ITILIZATÈ — defini yon sèl fwa isit
-//  Importa nan tout lòt fichye ki bezwen li
-// ══════════════════════════════════════════════════════════════
-
 class UserModel {
   final String fullName;
   final String email;
@@ -25,7 +20,6 @@ class UserModel {
   });
 }
 
-// ── Done mock (pa gen backend) ──
 const Map<String, Map<String, dynamic>> mockUsers = {
   'jean.dupont@gmail.com': {
     'password': 'jean1234',
@@ -35,9 +29,9 @@ const Map<String, Map<String, dynamic>> mockUsers = {
       phone: '+509 3700-0001',
       avatarInitials: 'JD',
       isVerified: true,
-      orders: 12,
-      pending: 3,
-      reviews: 8,
+      orders: 0,
+      pending: 0,
+      reviews: 0,
     ),
   },
   'marie.paul@gmail.com': {
@@ -48,9 +42,9 @@ const Map<String, Map<String, dynamic>> mockUsers = {
       phone: '+509 3700-0002',
       avatarInitials: 'MP',
       isVerified: true,
-      orders: 5,
-      pending: 1,
-      reviews: 4,
+      orders: 0,
+      pending: 0,
+      reviews: 0,
     ),
   },
   'pierre.louis@gmail.com': {
@@ -61,9 +55,9 @@ const Map<String, Map<String, dynamic>> mockUsers = {
       phone: '+509 3700-0003',
       avatarInitials: 'PL',
       isVerified: false,
-      orders: 2,
+      orders: 0,
       pending: 0,
-      reviews: 1,
+      reviews: 0,
     ),
   },
 };
