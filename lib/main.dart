@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+<<<<<<< HEAD
 // ─────────────────────────────────────────────
 //  Importe tes screens ici (ajuste les chemins
 //  selon ta structure de dossiers)
@@ -10,20 +11,29 @@ import 'pages/profile_page.dart';
 // ── Les 2 autres screens (tes coéquipiers) ──
 // import 'screens/catalog/catalog_screen.dart';
 // import 'screens/cart/cart_screen.dart';
+=======
+import 'pages/login_page.dart';
+import 'main_navigation_wrapper.dart';
+import 'model/user_model.dart';
+>>>>>>> main
 
 void main() {
   runApp(const ShopApp());
 }
 
+<<<<<<< HEAD
 // ─────────────────────────────────────────────
 //  Root Widget
 // ─────────────────────────────────────────────
+=======
+>>>>>>> main
 class ShopApp extends StatelessWidget {
   const ShopApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+<<<<<<< HEAD
       title: 'ShopApp',
       debugShowCheckedModeBanner: false,
 
@@ -250,3 +260,34 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   }
   
 }
+=======
+      title: 'Ti Mache Lakay',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        fontFamily: 'Poppins',
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFE94560),
+        ),
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/main') {
+          final user = settings.arguments as UserModel;
+
+          return MaterialPageRoute(
+            builder: (_) => MainNavigationWrapper(user: user),
+          );
+        }
+
+        return MaterialPageRoute(
+          builder: (_) => const LoginScreen(),
+        );
+      },
+    );
+  }
+}
+>>>>>>> main
