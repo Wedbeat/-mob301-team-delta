@@ -28,9 +28,13 @@ class CartManager {
     return items.fold(0, (sum, item) => sum + item.price * item.quantity);
   }
 
-  static double get shipping => items.isEmpty ? 0 : 10;
+  static double get shipping {
+    return items.isEmpty ? 0 : 10;
+  }
 
-  static double get total => subtotal + shipping;
+  static double get total {
+    return subtotal + shipping;
+  }
 
   static void _refresh() {
     notifier.value = List<CartItem>.from(items);
@@ -59,20 +63,24 @@ class CartManager {
   }
 
   static void increase(int index) {
-    items[index].quantity++;
-    _refresh();
+    if (index >= 0 && index < items.length) {
+      items[index].quantity++;
+      _refresh();
+    }
   }
 
   static void decrease(int index) {
-    if (items[index].quantity > 1) {
+    if (index >= 0 && index < items.length && items[index].quantity > 1) {
       items[index].quantity--;
       _refresh();
     }
   }
 
   static void remove(int index) {
-    items.removeAt(index);
-    _refresh();
+    if (index >= 0 && index < items.length) {
+      items.removeAt(index);
+      _refresh();
+    }
   }
 
   static void clear() {

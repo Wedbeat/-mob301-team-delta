@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'model/user_model.dart';
 import 'pages/home_page.dart';
 import 'pages/profile_page.dart';
 import 'pages/cart_page.dart';
 import 'pages/cart_manager.dart';
-import 'model/user_model.dart';
 
 class NavIndex {
   static const int home = 0;
-  static const int catalog = 1;
-  static const int cart = 2;
-  static const int profile = 3;
+  static const int explore = 1;
+  static const int promo = 2;
+  static const int cart = 3;
+  static const int profile = 4;
 }
 
 class MainNavigationWrapper extends StatefulWidget {
@@ -33,9 +34,18 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
     _screens = [
       const HomeScreen(),
-      _buildComingSoon('Catalogue', Icons.grid_view),
+      _buildComingSoon('Dekouvri', Icons.explore_outlined),
+      _buildComingSoon('Promo', Icons.local_offer_outlined),
       const CartPage(),
-      ProfileScreen(user: widget.user),
+      ProfileScreen(
+  user: widget.user,
+  onLogout: () {
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      '/',
+      (route) => false,
+    );
+  },
+),
     ];
   }
 
@@ -51,15 +61,15 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             Text(
               label,
               style: const TextStyle(
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF1A1A2E),
               ),
             ),
             const SizedBox(height: 8),
             const Text(
-              'En cours de développement...',
-              style: TextStyle(color: Colors.grey, fontSize: 13),
+              'Paj sa a ap vini byento...',
+              style: TextStyle(color: Colors.grey),
             ),
           ],
         ),
@@ -73,18 +83,19 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     });
   }
 
-  void refreshCart() {
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: _buildBottomNavBar(),
+    return ValueListenableBuilder(
+      valueListenable: CartManager.notifier,
+      builder: (context, items, child) {
+        return Scaffold(
+          body: IndexedStack(
+            index: _currentIndex,
+            children: _screens,
+          ),
+          bottomNavigationBar: _buildBottomNavBar(),
+        );
+      },
     );
   }
 
@@ -94,15 +105,15 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black,
-            blurRadius: 16,
-            offset: const Offset(0, -4),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, -3),
           ),
         ],
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+        child: SizedBox(
+          height: 58,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -110,26 +121,32 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 index: NavIndex.home,
                 icon: Icons.home_outlined,
                 activeIcon: Icons.home,
-                label: 'Accueil',
+                label: 'Akèy',
               ),
               _buildNavItem(
-                index: NavIndex.catalog,
-                icon: Icons.grid_view_outlined,
-                activeIcon: Icons.grid_view,
-                label: 'Catalogue',
+                index: NavIndex.explore,
+                icon: Icons.explore_outlined,
+                activeIcon: Icons.explore,
+                label: 'Dekouvri',
+              ),
+              _buildNavItem(
+                index: NavIndex.promo,
+                icon: Icons.local_offer_outlined,
+                activeIcon: Icons.local_offer,
+                label: 'Promo',
               ),
               _buildNavItem(
                 index: NavIndex.cart,
                 icon: Icons.shopping_cart_outlined,
                 activeIcon: Icons.shopping_cart,
-                label: 'Panier',
+                label: 'Panye',
                 badgeCount: CartManager.count,
               ),
               _buildNavItem(
                 index: NavIndex.profile,
                 icon: Icons.person_outline,
                 activeIcon: Icons.person,
-                label: 'Profil',
+                label: 'Mwen',
               ),
             ],
           ),
@@ -147,72 +164,59 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   }) {
     final bool isActive = _currentIndex == index;
     const Color activeColor = Color(0xFFE94560);
-    const Color inactiveColor = Color.fromARGB(255, 194, 184, 184);
+    const Color inactiveColor = Colors.grey;
 
     return GestureDetector(
       onTap: () => _onTabTapped(index),
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        decoration: BoxDecoration(
-          color: isActive ? activeColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    isActive ? activeIcon : icon,
-                    key: ValueKey('$index-$isActive'),
-                    color: isActive ? activeColor : inactiveColor,
-                    size: 24,
-                  ),
-                ),
-                if (badgeCount > 0)
-                  Positioned(
-                    right: -8,
-                    top: -6,
-                    child: Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: const BoxDecoration(
-                        color: activeColor,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: Text(
-                        badgeCount > 99 ? '99+' : '$badgeCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(
+                isActive ? activeIcon : icon,
+                color: isActive ? activeColor : inactiveColor,
+                size: 24,
+              ),
+              if (badgeCount > 0)
+                Positioned(
+                  right: -10,
+                  top: -7,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    constraints: const BoxConstraints(
+                      minWidth: 17,
+                      minHeight: 17,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: activeColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      badgeCount > 99 ? '99+' : '$badgeCount',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-              ],
+                ),
+            ],
+          ),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              color: isActive ? activeColor : inactiveColor,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                color: isActive ? activeColor : inactiveColor,
-                fontFamily: 'Poppins',
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -222,10 +226,5 @@ class NavigationHelper {
   static void goTo(BuildContext context, int index) {
     final state = context.findAncestorStateOfType<_MainNavigationWrapperState>();
     state?._onTabTapped(index);
-  }
-
-  static void refreshCart(BuildContext context) {
-    final state = context.findAncestorStateOfType<_MainNavigationWrapperState>();
-    state?.refreshCart();
   }
 }
