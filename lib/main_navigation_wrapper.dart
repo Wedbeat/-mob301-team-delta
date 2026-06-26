@@ -5,6 +5,7 @@ import 'pages/home_page.dart';
 import 'pages/profile_page.dart';
 import 'pages/cart_page.dart';
 import 'pages/cart_manager.dart';
+import 'pages/explore_page.dart';
 
 class NavIndex {
   static const int home = 0;
@@ -34,7 +35,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
     _screens = [
       const HomeScreen(),
-      _buildComingSoon('Dekouvri', Icons.explore_outlined),
+      const ExplorePage(),
       _buildComingSoon('Promo', Icons.local_offer_outlined),
       const CartPage(),
       ProfileScreen(

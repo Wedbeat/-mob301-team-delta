@@ -610,7 +610,7 @@ class _ExplorePageState extends State<ExplorePage> {
                     child: Image.asset(
                       product.image,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, _) => Container(
                         color: const Color(0xFFF5F5F5),
                         child: const Center(
                           child: Icon(Icons.image_outlined,
@@ -851,7 +851,7 @@ class _ExplorePageState extends State<ExplorePage> {
                     width: 120,
                     height: 120,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       width: 120,
                       height: 120,
                       color: const Color(0xFFF5F5F5),
